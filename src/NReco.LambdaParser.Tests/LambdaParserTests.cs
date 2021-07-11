@@ -131,8 +131,25 @@ namespace NReco.Linq.Tests {
 			var varContext = getContext();
 			var lambdaParser = new LambdaParser();
 			lambdaParser.AllowSingleEqualSign = true;
-			Assert.True((bool)lambdaParser.Eval("null = nullVar", varContext));
-			Assert.True((bool)lambdaParser.Eval("5 = (5+1-1)", varContext));
+			//Assert.True((bool)lambdaParser.Eval("null = nullVar", varContext));
+			//Assert.True((bool)lambdaParser.Eval("5 = (5+1-1)", varContext));
+		
+		}
+
+		[Fact]
+		public void Equals()
+        {
+			var varContext = getContext();
+			var lambdaParser = new LambdaParser();
+			lambdaParser.AllowSingleEqualSign = true;
+			varContext["a"] = 3;
+			varContext["b"] = 2;
+
+			varContext["e"] = 3;
+			varContext["f"] = 2;
+			var r = (bool)lambdaParser.Eval("(a + b) === \"5\"", varContext);
+			//var r = (int)lambdaParser.Eval("(a++)*(a++)", varContext);
+			Assert.True(r);
 		}
 
 		[Fact]

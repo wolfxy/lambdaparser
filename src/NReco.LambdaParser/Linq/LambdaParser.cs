@@ -20,7 +20,7 @@ using System.Text;
 using System.Reflection;
 using System.ComponentModel;
 using System.Globalization;
-
+using NReco.LambdaParser.Linq;
 
 namespace NReco.Linq {
 	
@@ -36,7 +36,7 @@ namespace NReco.Linq {
 		const char charQuote = '"';
 		static readonly string[] mulOps = new[] {"*", "/", "%" };
 		static readonly string[] addOps = new[] { "+", "-" };
-		static readonly string[] eqOps = new[] { "==", "!=", "<", ">", "<=", ">=" };
+		static readonly string[] eqOps = new[] { "===", "!==", "==", "!=", "<", ">", "<=", ">=" };
 
 		readonly IDictionary<string, CompiledExpression> CachedExpressions = new Dictionary<string, CompiledExpression>();
 		readonly object _lock = new object();
@@ -300,8 +300,18 @@ namespace NReco.Linq {
 					var nextOpLexem = ReadLexem(expr, opLexem.End);
 					if (nextOpLexem.Type == LexemType.Delimiter) {
 						var opVal = opLexem.GetValue() + nextOpLexem.GetValue();
-						if (eqOps.Contains(opVal)) {
-							var secondOp = ParseAdditive(expr, nextOpLexem.End);
+						var lastLexem = nextOpLexem;
+						if (("=" == opLexem.GetValue() || "!" == opLexem.GetValue()) && "=" == nextOpLexem.GetValue())
+                        {
+							var thirdOpLexem = ReadLexem(expr, nextOpLexem.End);
+							if (thirdOpLexem.Type == LexemType.Delimiter && "=" == thirdOpLexem.GetValue())
+                            {
+								opVal += "=";
+								lastLexem = thirdOpLexem;
+							}
+						}
+						if (eqOps.Contains(opVal)) {  
+							var secondOp = ParseAdditive(expr, lastLexem.End);
 
 							switch (opVal) {
 								case "==":
@@ -329,7 +339,26 @@ namespace NReco.Linq {
 										Expr = Expression.LessThanOrEqual(firstOp.Expr, secondOp.Expr)
 									};
 									continue;
-
+								case "===":
+									{
+										MethodInfo mInfo = typeof(ExtendedMethods).GetTypeInfo().DeclaredMethods.Where(m => m.Name == "ExactEquals").First();
+										firstOp = new ParseResult()
+										{
+											End = secondOp.End,
+											Expr = Expression.Equal(firstOp.Expr, secondOp.Expr, false, mInfo)
+										};
+									}
+									continue;
+								case "!==":
+									{
+										MethodInfo mInfo = typeof(ExtendedMethods).GetTypeInfo().DeclaredMethods.Where(m => m.Name == "NotExactEquals").First();
+										firstOp = new ParseResult()
+										{
+											End = secondOp.End,
+											Expr = Expression.Equal(firstOp.Expr, secondOp.Expr, false, mInfo)
+										};
+									}
+									continue;
 							}
 						}
 
