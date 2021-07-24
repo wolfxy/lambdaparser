@@ -18,6 +18,7 @@ using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace NReco.Linq {
 
@@ -109,6 +110,14 @@ namespace NReco.Linq {
 				// lists are equal
 				return 0;
 			}
+			if ((a is string stra) && IsDecimal(a) && !(b is string) &&　IsDecimal(b))
+            {
+				return Decimal.Parse(stra).CompareTo(Decimal.Parse(Convert.ToString(b)));
+            }
+			if (!(a is string) && IsDecimal(a) && (b is string strb) && IsDecimal(b))
+			{
+				return Decimal.Parse(Convert.ToString(a)).CompareTo(Decimal.Parse(strb));
+			}
 			// test for quick compare if a type is assignable from b
 			if (a is IComparable) {
 				var aComp = (IComparable)a;
@@ -137,6 +146,13 @@ namespace NReco.Linq {
 			}
 
 			return null;
+		}
+
+		private bool IsDecimal(object obj)
+        {
+			string str = Convert.ToString(obj);
+			Regex regex = new Regex($"^[+-]?\\d+.?\\d+$");
+			return regex.IsMatch(str);
 		}
 
 		public enum NullComparisonMode {

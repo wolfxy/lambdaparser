@@ -133,7 +133,17 @@ namespace NReco.Linq.Tests {
 			lambdaParser.AllowSingleEqualSign = true;
 			//Assert.True((bool)lambdaParser.Eval("null = nullVar", varContext));
 			//Assert.True((bool)lambdaParser.Eval("5 = (5+1-1)", varContext));
-		
+
+			string str = "\"4.00\" == 4.0";
+			var result = lambdaParser.Eval(str, varContext);
+
+			str = "4.0 == \"4.00\"";
+			result = lambdaParser.Eval(str, varContext);
+
+			str = "\"4.0\" == \"4.00\"";
+			result = lambdaParser.Eval(str, varContext);
+
+			Assert.True((bool)result);
 		}
 
 		[Fact]
