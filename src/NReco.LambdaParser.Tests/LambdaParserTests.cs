@@ -163,6 +163,18 @@ namespace NReco.Linq.Tests {
 		}
 
 		[Fact]
+		public void Subduction()
+        {
+			var varContext = getContext();
+			var lambdaParser = new LambdaParser();
+			lambdaParser.AllowSingleEqualSign = true;
+			varContext["a"] = " 3.2 ";
+			varContext["b"] = "2";
+			var r = (Decimal)lambdaParser.Eval("a - b", varContext);
+			Assert.True((r == 1));
+		}
+
+		[Fact]
 		public void NullComparison() {
 			var varContext = getContext();
 			var lambdaParser = new LambdaParser();
