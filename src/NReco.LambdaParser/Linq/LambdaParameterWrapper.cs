@@ -149,6 +149,18 @@ namespace NReco.Linq {
 				var fldVal = fld.GetValue(obj);
 				return new LambdaParameterWrapper(fldVal, Cmp);
 			}
+			if (obj is IDictionary dic)
+            {
+				if (dic.Contains(propertyName))
+                {
+					var fldVal = dic[propertyName];
+					return new LambdaParameterWrapper(fldVal, Cmp);
+				}
+				else
+                {
+					return new LambdaParameterWrapper(null, Cmp);
+				}
+            }
 			throw new MissingMemberException(obj.GetType().ToString()+"."+propertyName);
 		}
 

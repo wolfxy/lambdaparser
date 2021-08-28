@@ -207,7 +207,20 @@ namespace NReco.Linq.Tests {
 			sw.Stop();
 			Console.WriteLine("10000 iterations: {0}", sw.Elapsed);
 		}
+		[Fact]
+		public void EvalAttribute()
+        {
+			var lambdaParser = new LambdaParser();
 
+			var varContext = new Dictionary<string, object>();
+			varContext["a"] = new Dictionary<string, object>
+			{
+				{ "name", "Jack" }
+			};
+			varContext["b"] = 2;
+			var value = lambdaParser.Eval("a.name1", varContext);
+			Console.WriteLine(value);
+		}
 
 		public class TestClass {
 
