@@ -215,10 +215,10 @@ namespace NReco.Linq.Tests {
 			var varContext = new Dictionary<string, object>();
 			varContext["a"] = new Dictionary<string, object>
 			{
-				{ "name", "Jack" }
+				{ "2", "Jack" }
 			};
 			varContext["b"] = 2;
-			var value = lambdaParser.Eval("a.name1", varContext);
+			var value = lambdaParser.Eval("a.a2 + 3", varContext);
 			Console.WriteLine(value);
 		}
 
