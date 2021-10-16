@@ -114,10 +114,18 @@ namespace NReco.Linq {
             {
 				return Decimal.Parse(stra).CompareTo(Decimal.Parse(Convert.ToString(b)));
             }
-			if (!(a is string) && IsDecimal(a) && (b is string strb) && IsDecimal(b))
+			if (!(a is string) && IsDecimal(a) && (b is string strb) )
 			{
-				return Decimal.Parse(Convert.ToString(a)).CompareTo(Decimal.Parse(strb));
+				if (IsDecimal(b))
+				{
+					return Decimal.Parse(Convert.ToString(a)).CompareTo(Decimal.Parse(strb));
+				}
+				else
+                {
+					return Convert.ToString(a).CompareTo(strb);
+				}
 			}
+			
 			// test for quick compare if a type is assignable from b
 			if (a is IComparable) {
 				var aComp = (IComparable)a;

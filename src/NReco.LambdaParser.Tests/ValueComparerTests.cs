@@ -46,7 +46,7 @@ namespace NReco.Linq.Tests {
 		public void SuppressErrorsBehaviour() {
 			var cmp = new ValueComparer();
 			cmp.SuppressErrors = true;
-
+			var k = cmp.Compare(5, "a");
 			Assert.Equal(cmp.Compare(5, "a").HasValue, false);
 		}
 
