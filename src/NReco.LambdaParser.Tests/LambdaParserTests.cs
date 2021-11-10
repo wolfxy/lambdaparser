@@ -5,8 +5,22 @@ using System.Diagnostics;
 using System.Text;
 
 using Xunit;
+using Newtonsoft.Json.Linq;
 
 namespace NReco.Linq.Tests {
+
+	class ThisCompare : ValueComparer
+    {
+		protected override object Penetrate(object obj)
+		{
+			if (obj is JToken token)
+            {
+				var ob = token.ToObject<object>();
+				return ob;
+            }
+			return obj;
+		}
+	}
 
 	public class LambdaParserTests {
 
@@ -34,6 +48,28 @@ namespace NReco.Linq.Tests {
 		}
 
 		[Fact]
+		public void EvalJ()
+		{
+			string exre = "a > 2";
+			Dictionary<string, object> dic = new Dictionary<string, object>
+			{
+				{ "a", new JValue(3)}
+			};
+			//JValue jValue = new JValue(3);
+			var lambdaParser = new LambdaParser(new ThisCompare());
+			
+			try
+			{
+				var ret = lambdaParser.Eval(exre, dic);
+				Console.WriteLine(ret);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.StackTrace);
+			}
+		}
+
+	    [Fact]
 		public void Eval() {
 			var lambdaParser = new LambdaParser();
 
@@ -177,7 +213,7 @@ namespace NReco.Linq.Tests {
 		[Fact]
 		public void NullComparison() {
 			var varContext = getContext();
-			varContext["a"] = "";
+			varContext["a"] = 1400;
 			var lambdaParser = new LambdaParser();
 
 			//Assert.True((bool)lambdaParser.Eval("null == nullVar", varContext));
@@ -190,7 +226,7 @@ namespace NReco.Linq.Tests {
 			//Assert.False((bool)lambdaParser.Eval("nullVar<5", varContext));
 			//Assert.False((bool)lambdaParser.Eval("nullVar>5", varContext));
 
-			var k = lambdaParser.Eval("12 == a", varContext);
+			var k = lambdaParser.Eval("\"1400.00\" == a", varContext);
 
 			Console.WriteLine(k);
 		}
@@ -224,6 +260,22 @@ namespace NReco.Linq.Tests {
 			};
 			varContext["b"] = 2;
 			var value = lambdaParser.Eval("a.a2 + 3", varContext);
+			Console.WriteLine(value);
+		}
+
+	    [Fact]
+		public void ExtMethod()
+        {
+			var lambdaParser = new LambdaParser();
+
+			var varContext = new Dictionary<string, object>();
+			varContext["a"] = new Dictionary<string, object>
+			{
+				{ "2", "Jack" }
+			};
+			varContext["b"] = false;
+			varContext["c"] = false;
+			var value = lambdaParser.Eval("b ผู", varContext);
 			Console.WriteLine(value);
 		}
 

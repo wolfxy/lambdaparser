@@ -64,6 +64,8 @@ namespace NReco.Linq {
 		}
 
 		int IComparer.Compare(object a, object b) {
+			a = Penetrate(a);
+			b = Penetrate(b);
 			var res = CompareInternal(a, b);
 			if (!res.HasValue)
 				throw new ArgumentException(String.Format("Cannot compare {0} and {1}", a.GetType(), b.GetType()));
@@ -76,6 +78,8 @@ namespace NReco.Linq {
 
 		public int? Compare(object a, object b) {
 			try {
+				a = Penetrate(a);
+				b = Penetrate(b);
 				if (NullComparison == NullComparisonMode.Sql)
 					if (a == null || b == null)
 						return null;
@@ -87,6 +91,11 @@ namespace NReco.Linq {
 			}
 		}
 
+        protected virtual object Penetrate(object obj)
+        {
+			return obj;
+        }
+
 		protected virtual int? CompareInternal(object a, object b) {
 			if (a == null && b == null)
 				return 0;
@@ -94,7 +103,8 @@ namespace NReco.Linq {
 				return -1;
 			if (a != null && b == null)
 				return 1;
-
+			a = Penetrate(a);
+			b = Penetrate(b);
 			if ((a is IList) && (b is IList)) {
 				IList aList = (IList)a;
 				IList bList = (IList)b;
@@ -158,6 +168,7 @@ namespace NReco.Linq {
 
 		private bool IsDecimal(object obj)
         {
+			obj = Penetrate(obj);
 			string str = Convert.ToString(obj);
 			Regex regex = new Regex($"^[+-]?\\d+.?\\d+$");
 			return regex.IsMatch(str);
