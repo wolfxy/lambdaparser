@@ -120,6 +120,14 @@ namespace NReco.Linq {
 				// lists are equal
 				return 0;
 			}
+			if (a is bool && !(b is bool))
+            {
+				b = b is null ? false : true;
+            }
+			if (b is bool && !(a is bool))
+            {
+				a = a is null ? false : true;
+			}
 			if ((a is string stra) && IsDecimal(a) && !(b is string) &&　IsDecimal(b))
             {
 				return Decimal.Parse(stra).CompareTo(Decimal.Parse(Convert.ToString(b)));

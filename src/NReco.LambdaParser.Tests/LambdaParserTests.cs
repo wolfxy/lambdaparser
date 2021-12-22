@@ -188,12 +188,12 @@ namespace NReco.Linq.Tests {
 			var varContext = getContext();
 			var lambdaParser = new LambdaParser();
 			lambdaParser.AllowSingleEqualSign = true;
-			varContext["a"] = 3;
+			varContext["a"] = new string[] { "1", "2", "3"};
 			varContext["b"] = 2;
 
 			varContext["e"] = 3;
 			varContext["f"] = 2;
-			var r = (bool)lambdaParser.Eval("(a + b) === \"5\"", varContext);
+			var r = (bool)lambdaParser.Eval("a == true", varContext);
 			//var r = (int)lambdaParser.Eval("(a++)*(a++)", varContext);
 			Assert.True(r);
 		}
