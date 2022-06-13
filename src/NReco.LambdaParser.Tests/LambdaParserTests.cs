@@ -193,7 +193,8 @@ namespace NReco.Linq.Tests {
 
 			varContext["e"] = 3;
 			varContext["f"] = 2;
-			var r = (bool)lambdaParser.Eval("a == true", varContext);
+			varContext["g"] = new object();
+			var r = (bool)lambdaParser.Eval("\"[]\" == a", varContext);
 			//var r = (int)lambdaParser.Eval("(a++)*(a++)", varContext);
 			Assert.True(r);
 		}

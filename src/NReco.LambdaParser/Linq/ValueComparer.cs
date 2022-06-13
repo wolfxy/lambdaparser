@@ -143,34 +143,43 @@ namespace NReco.Linq {
 					return Convert.ToString(a).CompareTo(strb);
 				}
 			}
-			
-			// test for quick compare if a type is assignable from b
-			if (a is IComparable) {
-				var aComp = (IComparable)a;
-				// quick compare if types are fully compatible
-				if (IsAssignableFrom( a.GetType(), b.GetType() ))
-					return aComp.CompareTo(b);
-			}
-			if (b is IComparable) {
-				var bComp = (IComparable)b;
-				// quick compare if types are fully compatible
-				if (IsAssignableFrom( b.GetType(), a.GetType() ))
-					return -bComp.CompareTo(a);
-			}
+			try
+			{
+				// test for quick compare if a type is assignable from b
+				if (a is IComparable)
+				{
+					var aComp = (IComparable)a;
+					// quick compare if types are fully compatible
+					if (IsAssignableFrom(a.GetType(), b.GetType()))
+						return aComp.CompareTo(b);
+				}
+				if (b is IComparable)
+				{
+					var bComp = (IComparable)b;
+					// quick compare if types are fully compatible
+					if (IsAssignableFrom(b.GetType(), a.GetType()))
+						return -bComp.CompareTo(a);
+				}
 
-			// try to convert b to a and then compare
-			if (a is IComparable) {
-				var aComp = (IComparable)a;
-				var bConverted = Convert.ChangeType(b, a.GetType(), FormatProvider);
-				return aComp.CompareTo(bConverted);
+				// try to convert b to a and then compare
+				if (a is IComparable)
+				{
+					var aComp = (IComparable)a;
+					var bConverted = Convert.ChangeType(b, a.GetType(), FormatProvider);
+					return aComp.CompareTo(bConverted);
+				}
+				// try to convert a to b and then compare
+				if (b is IComparable)
+				{
+					var bComp = (IComparable)b;
+					var aConverted = Convert.ChangeType(a, b.GetType(), FormatProvider);
+					return -bComp.CompareTo(aConverted);
+				}
 			}
-			// try to convert a to b and then compare
-			if (b is IComparable) {
-				var bComp = (IComparable)b;
-				var aConverted =  Convert.ChangeType(a, b.GetType(), FormatProvider);
-				return -bComp.CompareTo(aConverted);
-			}
+			catch(Exception e)
+            {
 
+            }
 			return null;
 		}
 
