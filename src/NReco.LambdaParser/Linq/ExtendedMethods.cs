@@ -7,7 +7,7 @@ using System.Text;
 
 namespace NReco.LambdaParser.Linq
 {
-    class ExtendedMethods 
+    static class ExtendedMethods 
     {
         public static bool ExactEquals(object obj1, object obj2)
         {
@@ -37,4 +37,5 @@ namespace NReco.LambdaParser.Linq
             return !ExactEquals(obj1, obj2);
         }
     }
+
 }

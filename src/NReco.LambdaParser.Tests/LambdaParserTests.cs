@@ -211,6 +211,20 @@ namespace NReco.Linq.Tests {
 			Assert.True((r == 1));
 		}
 
+		
+
+		[Fact]
+		public void IndexOf()
+        {
+			var varContext = getContext();
+			string exp = "false == \"1\"";
+			var lambdaParser = new LambdaParser();
+			lambdaParser.AllowSingleEqualSign = true;
+			varContext["a"] = "A";
+			var r = lambdaParser.Eval(exp, varContext);
+			Console.WriteLine(r);
+		}
+
 		[Fact]
 		public void NullComparison() {
 			var varContext = getContext();

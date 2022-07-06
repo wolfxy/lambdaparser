@@ -122,11 +122,11 @@ namespace NReco.Linq {
 			}
 			if (a is bool && !(b is bool))
             {
-				b = b is null ? false : true;
+				b = ("1".Equals(b) || (b is Decimal ib && ib == 1));
             }
 			if (b is bool && !(a is bool))
             {
-				a = a is null ? false : true;
+				a = ("1".Equals(a) || (a is Decimal ia && ia == 1));
 			}
 			if ((a is string stra) && IsDecimal(a) && !(b is string) &&　IsDecimal(b))
             {
