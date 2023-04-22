@@ -6,6 +6,8 @@ using System.Text;
 
 using Xunit;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace NReco.Linq.Tests {
 
@@ -171,13 +173,17 @@ namespace NReco.Linq.Tests {
 			//Assert.True((bool)lambdaParser.Eval("5 = (5+1-1)", varContext));
 
 			string str = "\"4.00\" == 4.0";
-			var result = lambdaParser.Eval(str, varContext);
+			//var result = lambdaParser.Eval(str, varContext);
 
-			str = "4.0 == \"4.00\"";
-			result = lambdaParser.Eval(str, varContext);
+			//str = "4.0 == \"4.00\"";
+			//result = lambdaParser.Eval(str, varContext);
 
-			str = "\"4.0\" == \"4.00\"";
-			result = lambdaParser.Eval(str, varContext);
+			//str = "\"4.0\" == \"4.00\"";
+			//result = lambdaParser.Eval(str, varContext);
+
+			varContext["obj"] = true;
+			var result = lambdaParser.Eval("\"===\" + obj", varContext);
+
 
 			Assert.True((bool)result);
 		}
@@ -291,6 +297,46 @@ namespace NReco.Linq.Tests {
 			varContext["b"] = false;
 			varContext["c"] = false;
 			var value = lambdaParser.Eval("b ºŸ", varContext);
+			Console.WriteLine(value);
+		}
+
+		[Fact]
+		public void ExtSumMethod()
+		{
+			var lambdaParser = new LambdaParser();
+
+            var varContext = new Dictionary<string, object>
+            {
+                ["b"] = "2",
+                ["c"] = 3
+            };
+            var value = lambdaParser.Eval("b * c", varContext);
+			Console.WriteLine(value);
+		}
+
+		internal T DeserializeObject<T>(string value)
+		{
+			var serializerSettings = new JsonSerializerSettings
+			{
+				// …Ë÷√Œ™Õ’∑Â√¸√˚
+				ContractResolver = new CamelCasePropertyNamesContractResolver()
+			};
+			return JsonConvert.DeserializeObject<T>(value, serializerSettings);
+		}
+
+		[Fact]
+		public void ExtSumMethod2()
+		{
+			var lambdaParser = new LambdaParser();
+			string str = "{\"result\":{\"name\":\"Jack\", \"age\":15}}";
+			var obj = DeserializeObject<Dictionary<string, object>>(str);
+			var varContext = new Dictionary<string, object>
+			{
+				{ "a" , null }
+			};
+
+			
+			var value = lambdaParser.Eval("a.result", varContext);
 			Console.WriteLine(value);
 		}
 

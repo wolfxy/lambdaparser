@@ -126,13 +126,16 @@ namespace NReco.Linq {
 
 		public LambdaParameterWrapper InvokePropertyOrField(object obj, string propertyName) {
 			if (obj == null)
-				throw new NullReferenceException(String.Format("Property or field {0} target is null", propertyName));
+				return null;
+				//throw new NullReferenceException(String.Format("Property or field {0} target is null", propertyName));
 			if (obj is LambdaParameterWrapper)
 				obj = ((LambdaParameterWrapper)obj).Value;
-			
-			#if NET40
+			if (obj == null)
+				return null;
+
+#if NET40
 			var prop = obj.GetType().GetProperty(propertyName);
-			#else
+#else
 			var prop = obj.GetType().GetRuntimeProperty(propertyName);
 			#endif
 
@@ -149,54 +152,96 @@ namespace NReco.Linq {
 				var fldVal = fld.GetValue(obj);
 				return new LambdaParameterWrapper(fldVal, Cmp);
 			}
-			if (obj is IDictionary dic)
-            {
-				if (dic.Contains(propertyName))
-                {
-					var fldVal = dic[propertyName];
-					return new LambdaParameterWrapper(fldVal, Cmp);
+			try
+			{
+				if (obj is IDictionary dic)
+				{
+					if (dic.Contains(propertyName))
+					{
+						var fldVal = dic[propertyName];
+						return new LambdaParameterWrapper(fldVal, Cmp);
+					}
+					else
+					{
+						return new LambdaParameterWrapper(null, Cmp);
+					}
 				}
 				else
-                {
-					return new LambdaParameterWrapper(null, Cmp);
+				{
+					var invoke = new InvokeMethod(obj, "get_Item");
+					var res = invoke.Invoke(new object[] { propertyName });
+					return new LambdaParameterWrapper(res, Cmp);
 				}
+			}
+			catch(Exception)
+            {
+				return null;
             }
-			throw new MissingMemberException(obj.GetType().ToString()+"."+propertyName);
+			//throw new MissingMemberException(obj.GetType().ToString()+"."+propertyName);
 		}
 
 		public LambdaParameterWrapper InvokeIndexer(object obj, object[] args) {
 			if (obj == null)
-				throw new NullReferenceException(String.Format("Indexer target is null"));
+				//throw new NullReferenceException(String.Format("Indexer target is null"));
+				return null;
 			if (obj is LambdaParameterWrapper)
 				obj = ((LambdaParameterWrapper)obj).Value;
+			if (obj == null)
+				return null;
 
 			var argsResolved = new object[args.Length];
 			for (int i = 0; i < args.Length; i++)
 				argsResolved[i] = args[i] is LambdaParameterWrapper ? ((LambdaParameterWrapper)args[i]).Value : args[i];
+			try
+			{
+				if (obj is Array)
+				{
+					var objArr = (Array)obj;
+					if (objArr.Rank != args.Length)
+					{
+						throw new RankException(String.Format("Array rank ({0}) doesn't match number of indicies ({1})",
+							objArr.Rank, args.Length));
+					}
+					var indicies = new int[argsResolved.Length];
+					for (int i = 0; i < argsResolved.Length; i++)
+						indicies[i] = Convert.ToInt32(argsResolved[i]);
 
-			if (obj is Array) {
-				var objArr = (Array)obj;
-				if (objArr.Rank != args.Length) {
-					throw new RankException(String.Format("Array rank ({0}) doesn't match number of indicies ({1})",
-						objArr.Rank, args.Length));
+					var res = objArr.GetValue(indicies);
+					return new LambdaParameterWrapper(res, Cmp);
 				}
-				var indicies = new int[argsResolved.Length];
-				for (int i = 0; i < argsResolved.Length; i++)
-					indicies[i] = Convert.ToInt32(argsResolved[i]);
-
-				var res = objArr.GetValue(indicies);
-				return new LambdaParameterWrapper(res, Cmp);
-			} else {
-				// indexer method
-				var invoke = new InvokeMethod(obj, "get_Item");
-				var res = invoke.Invoke(argsResolved);
-				return new LambdaParameterWrapper(res, Cmp);
+				else
+				{
+					// indexer method
+					var invoke = new InvokeMethod(obj, "get_Item");
+					var res = invoke.Invoke(argsResolved);
+					return new LambdaParameterWrapper(res, Cmp);
+				}
 			}
+			catch(Exception)
+            {
+				return null;
+            }
 		}
 
+		private static string ObjectToString(object obj)
+        {
+			if (obj is bool b)
+            {
+				if (b)
+                {
+					return "true";
+                } 
+				else
+                {
+					return "false";
+                }
+            }
+			return Convert.ToString(obj);
+        }
+
 		public static LambdaParameterWrapper operator +(LambdaParameterWrapper c1, LambdaParameterWrapper c2) {
-			if (c1.Value is string || c2.Value is string) {
-				return new LambdaParameterWrapper( Convert.ToString(c1.Value) + Convert.ToString(c2.Value), c1.Cmp);
+			if (c1.Value is string && c2.Value is string) {
+				return new LambdaParameterWrapper(ObjectToString(c1.Value) + ObjectToString(c2.Value), c1.Cmp);
 			} 
 
 			if (c1.Value is TimeSpan c1TimeSpan && c2.Value is DateTime c2DateTime) 
@@ -213,10 +258,16 @@ namespace NReco.Linq {
 			{
 				return new LambdaParameterWrapper(c1ts + c2ts, c1.Cmp);
 			}
-
-			var c1decimal = Convert.ToDecimal(c1.Value, CultureInfo.InvariantCulture);
-			var c2decimal = Convert.ToDecimal(c2.Value,  CultureInfo.InvariantCulture);
-			return new LambdaParameterWrapper(c1decimal + c2decimal, c1.Cmp);
+			try
+			{
+				var c1decimal = Convert.ToDecimal(c1.Value, CultureInfo.InvariantCulture);
+				var c2decimal = Convert.ToDecimal(c2.Value, CultureInfo.InvariantCulture);
+				return new LambdaParameterWrapper(c1decimal + c2decimal, c1.Cmp);
+			}
+			catch(Exception e)
+            {
+				return new LambdaParameterWrapper(ObjectToString(c1.Value) + ObjectToString(c2.Value), c1.Cmp);
+			}
 		}
 
 		public static LambdaParameterWrapper operator -(LambdaParameterWrapper c1, LambdaParameterWrapper c2) {
