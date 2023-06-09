@@ -128,6 +128,7 @@ namespace NReco.Linq {
             {
 				a = ("1".Equals(a) || (a is Decimal ia && ia == 1));
 			}
+			var ist = IsDecimal(a);
 			if ((a is string stra) && IsDecimal(a) && !(b is string) &&　IsDecimal(b))
             {
 				return Decimal.Parse(stra).CompareTo(Decimal.Parse(Convert.ToString(b)));
@@ -187,7 +188,7 @@ namespace NReco.Linq {
         {
 			obj = Penetrate(obj);
 			string str = Convert.ToString(obj);
-			Regex regex = new Regex($"^[+-]?\\d+.?\\d+$");
+			Regex regex = new Regex($"^[+-]?(\\d+.)?\\d+$");
 			return regex.IsMatch(str);
 		}
 

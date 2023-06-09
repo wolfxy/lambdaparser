@@ -8,6 +8,7 @@ using Xunit;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace NReco.Linq.Tests {
 
@@ -335,9 +336,14 @@ namespace NReco.Linq.Tests {
 				{ "a" , null }
 			};
 
-			
-			var value = lambdaParser.Eval("a.result", varContext);
+
+			var value = lambdaParser.Eval("31 < \"4\" ", varContext);
 			Console.WriteLine(value);
+
+			//str = "43.0";
+			//Regex regex = new Regex($"^[+-]?(\\d+.)?\\d+$");
+			//bool isD =  regex.IsMatch(str);
+			//Console.WriteLine(isD);
 		}
 
 		public class TestClass {
