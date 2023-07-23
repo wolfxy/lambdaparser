@@ -128,21 +128,19 @@ namespace NReco.Linq {
             {
 				a = ("1".Equals(a) || (a is Decimal ia && ia == 1));
 			}
-			var ist = IsDecimal(a);
-			if ((a is string stra) && IsDecimal(a) && !(b is string) &&　IsDecimal(b))
+			var isADecimal = IsDecimal(a);
+			var isBDecimal = IsDecimal(b);
+			if (isADecimal && isBDecimal)
             {
-				return Decimal.Parse(stra).CompareTo(Decimal.Parse(Convert.ToString(b)));
-            }
-			if (!(a is string) && IsDecimal(a) && (b is string strb) )
-			{
-				if (IsDecimal(b))
-				{
-					return Decimal.Parse(Convert.ToString(a)).CompareTo(Decimal.Parse(strb));
-				}
-				else
-                {
-					return Convert.ToString(a).CompareTo(strb);
-				}
+				return Decimal.Parse(Convert.ToString(a)).CompareTo(Decimal.Parse(Convert.ToString(b)));
+			}
+			if (isADecimal && b is string strb)
+            {
+				return Convert.ToString(a).CompareTo(strb);
+			}
+			if (a is string stra && isBDecimal)
+            {
+				return stra.CompareTo(Convert.ToString(b));
 			}
 			try
 			{
@@ -179,7 +177,7 @@ namespace NReco.Linq {
 			}
 			catch(Exception e)
             {
-
+				return Convert.ToString(a).CompareTo(Convert.ToString(b));
             }
 			return null;
 		}
@@ -188,6 +186,11 @@ namespace NReco.Linq {
         {
 			obj = Penetrate(obj);
 			string str = Convert.ToString(obj);
+			return IsDecimalString(str);
+		}
+
+		internal static bool IsDecimalString(string str)
+        {
 			Regex regex = new Regex($"^[+-]?(\\d+.)?\\d+$");
 			return regex.IsMatch(str);
 		}

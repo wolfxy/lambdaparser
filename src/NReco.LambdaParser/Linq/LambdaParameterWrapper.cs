@@ -240,7 +240,8 @@ namespace NReco.Linq {
         }
 
 		public static LambdaParameterWrapper operator +(LambdaParameterWrapper c1, LambdaParameterWrapper c2) {
-			if (c1.Value is string && c2.Value is string) {
+			//One item of c1 and c2 is not decimal.
+			if ((c1.Value is string c1s && !ValueComparer.IsDecimalString(c1s)) || (c2.Value is string c2s && !ValueComparer.IsDecimalString(c2s))) {
 				return new LambdaParameterWrapper(ObjectToString(c1.Value) + ObjectToString(c2.Value), c1.Cmp);
 			} 
 

@@ -311,7 +311,11 @@ namespace NReco.Linq.Tests {
                 ["b"] = "2",
                 ["c"] = 3
             };
-            var value = lambdaParser.Eval("b * c", varContext);
+            //var value = lambdaParser.Eval("b * c", varContext);
+            var value = lambdaParser.Eval("\"1\" + 1", varContext);
+
+
+
 			Console.WriteLine(value);
 		}
 
@@ -344,6 +348,34 @@ namespace NReco.Linq.Tests {
 			//Regex regex = new Regex($"^[+-]?(\\d+.)?\\d+$");
 			//bool isD =  regex.IsMatch(str);
 			//Console.WriteLine(isD);
+		}
+
+		[Fact]
+		public void TestCompare()
+        {
+			var context = new Dictionary<string, object>
+			{
+				{ "当前页", "2" },
+				{ "总页数", "16a" },
+			};
+			string str = "当前页 < 总页数";
+			var lambdaParser = new LambdaParser();
+			var value = lambdaParser.Eval(str, context);
+			Console.WriteLine(value);
+		}
+
+
+		[Fact]
+		public void RegString()
+        {
+			string s = "\"msg:\\\"([^\\\"]*)\\\"\"";
+			var varContext = new Dictionary<string, object>
+			{
+				{ "a" , null }
+			};
+			var lambdaParser = new LambdaParser();
+			var rs = lambdaParser.Eval(s, varContext);
+			Console.WriteLine(rs);
 		}
 
 		public class TestClass {
