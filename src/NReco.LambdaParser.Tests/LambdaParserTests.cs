@@ -341,7 +341,7 @@ namespace NReco.Linq.Tests {
 			};
 
 
-			var value = lambdaParser.Eval("31 < \"4\" ", varContext);
+			var value = lambdaParser.Eval("\"1\" == 1", varContext);
 			Console.WriteLine(value);
 
 			//str = "43.0";

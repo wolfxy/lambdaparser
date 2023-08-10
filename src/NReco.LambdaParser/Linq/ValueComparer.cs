@@ -91,20 +91,34 @@ namespace NReco.Linq {
 			}
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
         protected virtual object Penetrate(object obj)
         {
 			return obj;
         }
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <returns></returns>
 		protected virtual int? CompareInternal(object a, object b) {
+			int? customRet = CustomCompareInternalObject(a, b);
+			if (customRet != null)
+            {
+				return customRet;
+            }
 			if (a == null && b == null)
 				return 0;
 			if (a == null && b != null)
 				return -1;
 			if (a != null && b == null)
 				return 1;
-			a = Penetrate(a);
-			b = Penetrate(b);
 			if ((a is IList) && (b is IList)) {
 				IList aList = (IList)a;
 				IList bList = (IList)b;
@@ -174,13 +188,41 @@ namespace NReco.Linq {
 					var aConverted = Convert.ChangeType(a, b.GetType(), FormatProvider);
 					return -bComp.CompareTo(aConverted);
 				}
+
+				return CompareInternalObject(a, b);
 			}
-			catch(Exception e)
+			catch(Exception)
             {
-				return Convert.ToString(a).CompareTo(Convert.ToString(b));
-            }
-			return null;
+				if (a != null && b != null && !a.GetType().Equals(b.GetType()))
+                {
+					return -1;
+                }
+				return CompareInternalObject(a, b);
+
+			}
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <returns></returns>
+		protected virtual int? CompareInternalObject(object a, object b)
+        {
+			return Convert.ToString(a).CompareTo(Convert.ToString(b));
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <returns></returns>
+		protected virtual int? CustomCompareInternalObject(object a, object b)
+        {
+			return null;
+        }
 
 		private bool IsDecimal(object obj)
         {
@@ -195,6 +237,9 @@ namespace NReco.Linq {
 			return regex.IsMatch(str);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public enum NullComparisonMode {
 
 			/// <summary>
